@@ -26,12 +26,16 @@ class Blog extends Component {
                 { id: 18, title: 'Blog post 18', content: 'Lorem', date: new Date('2022-04-19') },
                 { id: 19, title: 'Blog post 19', content: 'Lorem', date: new Date('2022-04-20') },
                 { id: 20, title: 'Blog post 20', content: 'Lorem', date: new Date('2022-04-22') }
+
             ],
             sortBy: 'date',
-            isSortedAscending: true
+            isSortedAscending: true,
+            currentPage: 1,
+            itemsPerPage: 10
         };
         this.sortByDateAsc = this.sortByDateAsc.bind(this);
-        this.sortByDateDesc = this.sortByDateDesc.bind(this);    
+        this.sortByDateDesc = this.sortByDateDesc.bind(this);
+        this.handlePageChange = this.handlePageChange.bind(this);
     }
 
     sortByDateAsc() {
@@ -44,7 +48,23 @@ class Blog extends Component {
         this.setState({ posts: sortedPosts, isSortedAscending: false });
     }
 
+    handlePageChange(pageNumber) {
+        this.setState({ currentPage: pageNumber });
+    }
+
     render() {
+        const { posts, sortBy, isSortedAscending, currentPage, itemsPerPage } = this.state;
+
+        // calculate the index of the first and last items to display
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+        // extract the subset of posts to display on the current page
+        const currentPosts = posts.slice(indexOfFirstItem, indexOfLastItem);
+
+        // calculate the total number of pages
+        const totalPages = Math.ceil(posts.length / itemsPerPage);
+
         return (
             <Container>
                 <Row>
@@ -76,7 +96,7 @@ class Blog extends Component {
                             Дата ↓
                         </button>
                         <Card>
-                              <ListGroup variant="flush">
+                            <ListGroup variant="flush">
                                 <ListGroup.Item>категорія 1</ListGroup.Item>
                                 <ListGroup.Item>категорія 2</ListGroup.Item>
                                 <ListGroup.Item>категорія 3</ListGroup.Item>
