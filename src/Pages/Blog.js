@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Col, Row, Card, ListGroup } from "react-bootstrap";
+import { Container, Col, Row, Card, ListGroup, Pagination } from "react-bootstrap";
 
 class Blog extends Component {
     constructor(props) {
@@ -28,8 +28,6 @@ class Blog extends Component {
                 { id: 20, title: 'Blog post 20', content: 'Lorem', date: new Date('2022-04-22') }
 
             ],
-            sortBy: 'date',
-            isSortedAscending: true,
             currentPage: 1,
             itemsPerPage: 10
         };
@@ -50,26 +48,34 @@ class Blog extends Component {
 
     handlePageChange(pageNumber) {
         this.setState({ currentPage: pageNumber });
-    }
+      }
 
     render() {
-        const { posts, sortBy, isSortedAscending, currentPage, itemsPerPage } = this.state;
+        const { posts, isSortedAscending, currentPage, itemsPerPage } = this.state;
 
-        // calculate the index of the first and last items to display
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
-        // extract the subset of posts to display on the current page
-        const currentPosts = posts.slice(indexOfFirstItem, indexOfLastItem);
-
-        // calculate the total number of pages
+        const currentItems = posts.slice(indexOfFirstItem, indexOfLastItem);
+        
         const totalPages = Math.ceil(posts.length / itemsPerPage);
-
+        const paginationLinks = [];
+        for (let i = 1; i <= totalPages; i++) {
+            paginationLinks.push(
+                <Pagination.Item
+                    key={i}
+                    active={i === currentPage}
+                    onClick={() => this.handlePageChange(i)}
+                >
+                    {i}
+                </Pagination.Item>
+            );
+        }
+        
         return (
             <Container>
                 <Row>
                     <Col md="9">
-                        {this.state.posts.map(post => (
+                        {currentItems.map(post => (
                             <div key={post.id} className="d-flex align-items-center me-5">
                                 <div className="flex-shrink-0">
                                     <img
@@ -89,10 +95,10 @@ class Blog extends Component {
                     </Col>
                     <Col md="3">
                         <h5 className="text-center mt-5">Категорії</h5>
-                        <button className={this.state.isSortedAscending ? 'btn btn-primary' : 'btn'} onClick={this.sortByDateAsc}>
+                        <button className={isSortedAscending ? 'btn btn-primary' : 'btn'} onClick={this.sortByDateAsc}>
                             Дата ↑
                         </button>
-                        <button className={!this.state.isSortedAscending ? 'btn btn-primary' : 'btn'} onClick={this.sortByDateDesc}>
+                        <button className={!isSortedAscending ? 'btn btn-primary' : 'btn'} onClick={this.sortByDateDesc}>
                             Дата ↓
                         </button>
                         <Card>
@@ -104,6 +110,7 @@ class Blog extends Component {
                                 <ListGroup.Item>категорія 5</ListGroup.Item>
                             </ListGroup>
                         </Card>
+                        <Pagination>{paginationLinks}</Pagination>
                     </Col >
                     <Card className="mt-3 bg-light">
                         <Card.Body>
@@ -114,7 +121,7 @@ class Blog extends Component {
                         </Card.Body>
                     </Card>
                 </Row>
-            </Container>
+            </Container>       
         );
     }
 }
