@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Container, Col, Row, Card, ListGroup, Pagination } from "react-bootstrap";
+import StarRatings from './star-ratings';
 
 class Blog extends Component {
     constructor(props) {
@@ -29,11 +30,13 @@ class Blog extends Component {
 
             ],
             currentPage: 1,
-            itemsPerPage: 10
+            itemsPerPage: 10,
+            ratings: {}
         };
         this.sortByDateAsc = this.sortByDateAsc.bind(this);
         this.sortByDateDesc = this.sortByDateDesc.bind(this);
         this.handlePageChange = this.handlePageChange.bind(this);
+        this.handleRatingClick = this.handleRatingClick.bind(this);
     }
 
     sortByDateAsc() {
@@ -48,7 +51,17 @@ class Blog extends Component {
 
     handlePageChange(pageNumber) {
         this.setState({ currentPage: pageNumber });
-      }
+    }
+    handleRatingClick(postId, newRating) { 
+        this.setState(prevState => ({
+            ratings: {
+                ...prevState.ratings,
+                [postId]: newRating
+            }
+        }));
+    }
+    
+
 
     render() {
         const { posts, isSortedAscending, currentPage, itemsPerPage } = this.state;
@@ -56,7 +69,7 @@ class Blog extends Component {
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
         const currentItems = posts.slice(indexOfFirstItem, indexOfLastItem);
-        
+
         const totalPages = Math.ceil(posts.length / itemsPerPage);
         const paginationLinks = [];
         for (let i = 1; i <= totalPages; i++) {
@@ -70,7 +83,7 @@ class Blog extends Component {
                 </Pagination.Item>
             );
         }
-        
+
         return (
             <Container>
                 <Row>
@@ -88,7 +101,16 @@ class Blog extends Component {
                                 <div className="flex-grow-1 ms-3">
                                     <h5>{post.title}</h5>
                                     <p>{post.content}</p>
+                                    <StarRatings
+                                        rating={this.state.ratings[post.id] || 0}
+                                        starRatedColor="#ffd700"
+                                        numberOfStars={5}
+                                        starDimension="24px"
+                                        starSpacing="4px"
+                                        changeRating={(newRating) => this.handleRatingClick(post.id, newRating)}
+                                    />
                                     <p>{post.date.toLocaleDateString()}</p>
+
                                 </div>
                             </div>
                         ))}
@@ -121,7 +143,7 @@ class Blog extends Component {
                         </Card.Body>
                     </Card>
                 </Row>
-            </Container>       
+            </Container>
         );
     }
 }
